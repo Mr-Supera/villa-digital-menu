@@ -42,6 +42,8 @@ declare
   uid uuid := auth.uid();
   user_email text;
 begin
+  perform pg_advisory_xact_lock(741239001);
+
   if uid is null then
     raise exception 'É necessário iniciar sessão para criar o administrador.';
   end if;
