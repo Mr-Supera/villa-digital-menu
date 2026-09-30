@@ -34,6 +34,7 @@ export type Settings = Record<string, string>;
 export const categoriesQuery = (all = false) =>
   queryOptions({
     queryKey: ["categories", all],
+    staleTime: 5 * 60 * 1000,
     queryFn: async (): Promise<Category[]> => {
       let q = supabase.from("categories").select("*").order("sort_order");
       if (!all) q = q.eq("is_active", true);
@@ -46,6 +47,7 @@ export const categoriesQuery = (all = false) =>
 export const itemsQuery = (all = false) =>
   queryOptions({
     queryKey: ["items", all],
+    staleTime: 5 * 60 * 1000,
     queryFn: async (): Promise<Item[]> => {
       let q = supabase.from("items").select("*").order("sort_order");
       if (!all) q = q.eq("is_active", true);
@@ -58,6 +60,7 @@ export const itemsQuery = (all = false) =>
 export const settingsQuery = () =>
   queryOptions({
     queryKey: ["settings"],
+    staleTime: 5 * 60 * 1000,
     queryFn: async (): Promise<Settings> => {
       const { data, error } = await supabase.from("settings").select("key, value");
       if (error) throw error;
