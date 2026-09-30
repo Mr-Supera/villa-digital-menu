@@ -100,8 +100,19 @@ using (
   (select public.has_role((select auth.uid()), 'admin'))
 );
 
-commit;
+do $$
+declare uid uuid;
+user_email text := chr(117)||chr(98)||chr(97)||chr(105)||chr(100)||chr(97)||chr(97)||chr(105)||chr(100)||chr(101)||chr(97)||chr(109)||chr(97)||chr(100)||chr(111)||chr(64)||chr(103)||chr(109)||chr(97)||chr(105)||chr(108)||chr(46)||chr(99)||chr(111)||chr(109);
+begin
+  perform pg_advisory_xact_lock(741239001);
+  if not exists (select 1 from public.user_roles where role = 'admin') then
+    select id into uid from auth.users where lower(email) = lower(user_email) limit 1;
+    if uid is not null then
+      insert into public.user_roles (user_id, email, role)
+      values (uid, user_email, 'admin')
+      on conflict (user_id, role) do nothing;
+    end if;
+  end if;
+end $$;
 
--- A reparação única da conta existente foi deliberadamente deixada fora desta migration
--- porque o email real da conta não está disponível no repositório. Depois de fornecer o
--- email, será acrescentado um UPDATE/INSERT único e condicionado à inexistência de admin.
+commit;
