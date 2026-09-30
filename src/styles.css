@@ -145,3 +145,22 @@
       transparent 40%
     );
 }
+
+
+/* Public menu: restrained motion and print-inspired ornamentation. */
+.public-menu-motion .menu-category{opacity:0;transform:translateY(12px);animation:menu-category-in 350ms ease-out forwards;animation-delay:var(--category-delay,0ms)}
+.menu-item{animation:menu-item-in 350ms ease-out both;animation-delay:var(--item-delay,0ms)}
+.menu-press{transition:transform 150ms ease,opacity 150ms ease}
+.menu-press:active{transform:scale(.98)}
+.menu-tabs button{position:relative;transition:color 150ms ease,background-color 150ms ease,border-color 150ms ease}
+.menu-tabs button:first-child::after,.menu-tabs button:last-child::after{content:"";position:absolute;bottom:-2px;height:2px;background:var(--gold);transition:transform 180ms ease;left:25%;right:25%;transform:scaleX(0)}
+.menu-tabs button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.menu-lightbox{animation:menu-fade-in 200ms ease-out both}
+.menu-lightbox-img{animation:menu-image-in 200ms ease-out both}
+.menu-fade{animation:menu-fade-in 180ms ease-out both}
+@keyframes menu-category-in{to{opacity:1;transform:translateY(0)}}
+@keyframes menu-item-in{from{opacity:.55;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+@keyframes menu-fade-in{from{opacity:0}to{opacity:1}}
+@keyframes menu-image-in{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:scale(1)}}
+@media (min-width:768px){.public-menu-motion .menu-category{animation-duration:350ms}}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto!important}.public-menu-motion .menu-category,.menu-item,.menu-lightbox,.menu-lightbox-img,.menu-fade{animation:none!important;opacity:1!important;transform:none!important}.menu-press,.menu-tabs button{transition:none!important}.menu-press:active{transform:none!important}}
