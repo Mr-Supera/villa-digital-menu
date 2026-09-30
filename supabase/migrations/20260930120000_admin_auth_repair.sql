@@ -68,7 +68,7 @@ revoke all on function public.claim_first_admin() from public;
 grant execute on function public.claim_first_admin() to authenticated;
 
 revoke all on public.user_roles from anon;
-grant select, insert, update, delete on public.user_roles to authenticated;
+grant select, update, delete on public.user_roles to authenticated;
 
 create policy user_roles_select_own
 on public.user_roles
@@ -77,14 +77,6 @@ to authenticated
 using (
   (select auth.uid()) = user_id
   or (select public.has_role((select auth.uid()), 'admin'))
-);
-
-create policy user_roles_insert_admin
-on public.user_roles
-for insert
-to authenticated
-with check (
-  (select public.has_role((select auth.uid()), 'admin'))
 );
 
 create policy user_roles_update_admin
