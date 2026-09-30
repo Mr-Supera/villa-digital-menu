@@ -89,9 +89,9 @@ declare module '@tanstack/react-router' {
   }
 }
 const adminRouteChildren:AdminRouteChildren={AdminIndexRoute,AdminLoginRoute,AdminSetupRoute,AdminCategoriasRoute,AdminItensRoute,AdminDefinicoesRoute,AdminUtilizadoresRoute}
+AdminRoute._addFileChildren(adminRouteChildren)
 const rootRouteChildren:RootRouteChildren={IndexRoute,QrRoute,AdminRoute}
 export const routeTree=rootRouteImport._addFileChildren(rootRouteChildren)._addFileTypes<FileRouteTypes>()
-AdminRoute._addFileChildren(adminRouteChildren)
 
 import type { getRouter } from './router.tsx'
 import type { startInstance } from './start.ts'
