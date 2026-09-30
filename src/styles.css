@@ -148,16 +148,21 @@
 
 
 /* Public menu: restrained motion and print-inspired ornamentation. */
-.public-menu-motion .menu-category{opacity:0;transform:translateY(12px)}
-.public-menu-motion .menu-category.menu-category-visible{animation:menu-category-in 350ms ease-out forwards}
-.menu-item{animation:menu-item-in 350ms ease-out both;animation-delay:var(--item-delay,0ms)}
+.public-menu-motion .menu-category{opacity:1;transform:none}
+.menu-category{content-visibility:auto;contain-intrinsic-size:520px}
 .menu-press{transition:transform 150ms ease,opacity 150ms ease}
 .menu-press:active{transform:scale(.98)}
 .menu-tabs button{position:relative;transition:color 150ms ease,background-color 150ms ease,border-color 150ms ease}
 .menu-tabs button:first-child::after,.menu-tabs button:last-child::after{content:"";position:absolute;bottom:-2px;height:2px;background:var(--gold);transition:transform 180ms ease;left:25%;right:25%;transform:scaleX(0)}
 .menu-chip{position:relative;overflow:hidden}.menu-chip::after{content:"";position:absolute;left:22%;right:22%;bottom:0;height:1px;background:var(--gold);transform:scaleX(0);transform-origin:center;transition:transform 180ms ease}.menu-chip-active::after{transform:scaleX(1)}
-.menu-section-content{animation:menu-fade-in 200ms ease-out both}
+.menu-section-content{animation:menu-fade-in 200ms ease-out both;overflow-x:clip}
 html{scroll-behavior:smooth}
+.public-menu-sticky{position:sticky;top:0;z-index:40}
+.public-menu-sticky .overflow-x-auto{overscroll-behavior-x:contain}
+.public-menu-motion{overflow-x:clip}
+.menu-category{scroll-margin-top:96px}
+@media (max-width:480px){.public-menu-sticky{padding-top:env(safe-area-inset-top)}.public-menu-sticky .menu-tabs{padding-top:0}.public-menu-sticky nav>div{max-height:52px}.menu-category{scroll-margin-top:96px}}
+@media (min-width:768px){.menu-category{scroll-margin-top:104px}}
 .menu-tabs button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 .menu-lightbox{animation:menu-fade-in 200ms ease-out both}
 .menu-lightbox-img{animation:menu-image-in 200ms ease-out both}
