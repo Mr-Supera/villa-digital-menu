@@ -15,6 +15,13 @@
       "when": 1790760516216,
       "tag": "0001_storage_policies",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1790760594704,
+      "tag": "0002_seed_restaurante",
+      "breakpoints": true
     }
   ]
 }
