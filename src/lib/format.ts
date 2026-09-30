@@ -2,7 +2,7 @@
 export function formatPrice(value: number | string | null | undefined): string {
   const n = typeof value === "string" ? Number(value) : (value ?? 0);
   const safe = Number.isFinite(n) ? n : 0;
-  const [int, dec] = safe.toFixed(2).split(".");
+  const [int = "0", dec = "00"] = safe.toFixed(2).split(".");
   const withDots = int.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   return `${withDots},${dec} MT`;
 }
