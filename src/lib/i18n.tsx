@@ -4,7 +4,7 @@ export type Lang = "pt" | "en";
 
 const dict = {
   pt: {
-    restaurant: "Restaurante",
+    restaurant: "Refeições",
     drinks: "Bebidas",
     search: "Pesquisar pratos e bebidas...",
     noResults: "Nada encontrado.",
@@ -16,7 +16,7 @@ const dict = {
     close: "Fechar",
   },
   en: {
-    restaurant: "Restaurant",
+    restaurant: "Meals",
     drinks: "Drinks",
     search: "Search dishes and drinks...",
     noResults: "Nothing found.",
