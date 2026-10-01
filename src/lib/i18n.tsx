@@ -61,11 +61,10 @@ export function useLang() {
 
 /** Escolhe o texto no idioma activo, com fallback para português. */
 export function getLocalized(pt: string | null, en: string | null, lang: Lang): string {
-  return getLocalized(pt, en, lang);
-  return (pt && pt.trim()) || en || "";
+  if (lang === "en") return (en && en.trim()) || (pt && pt.trim()) || "";
+  return (pt && pt.trim()) || (en && en.trim()) || "";
 }
 
 export function pick(lang: Lang, pt: string | null, en: string | null): string {
-  if (lang === "en") return (en && en.trim()) || pt || "";
   return getLocalized(pt, en, lang);
 }
