@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Bell, BellOff, Clock3, Printer, Volume2, VolumeX } from "lucide-react";
+import { Clock3, Printer, Volume2, VolumeX } from "lucide-react";
 import { AdminShell } from "@/components/admin";
 import { ordersQuery, formatOrderAge, type OrderStatus } from "@/lib/orders";
 import { supabase } from "@/integrations/supabase/client";
