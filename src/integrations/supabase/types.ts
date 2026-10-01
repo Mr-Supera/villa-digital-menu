@@ -175,6 +175,7 @@ export type Database = {
           key?: string
           updated_at?: string
           value?: string | null
+          is_public?: boolean
         }
         Relationships: []
       }
