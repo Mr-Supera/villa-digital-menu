@@ -19,6 +19,8 @@ import { Route as AdminItensRouteImport } from './routes/admin/itens'
 import { Route as AdminLoginRouteImport } from './routes/admin/login'
 import { Route as AdminSetupRouteImport } from './routes/admin/setup'
 import { Route as AdminUtilizadoresRouteImport } from './routes/admin/utilizadores'
+import { Route as AdminPedidosRouteImport } from './routes/admin/pedidos'
+import { Route as AdminMesasRouteImport } from './routes/admin/mesas'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -70,6 +72,16 @@ const AdminUtilizadoresRoute = AdminUtilizadoresRouteImport.update({
   path: '/utilizadores',
   getParentRoute: () => AdminRouteRoute,
 } as any)
+const AdminPedidosRoute = AdminPedidosRouteImport.update({
+  id: '/pedidos',
+  path: '/pedidos',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminMesasRoute = AdminMesasRouteImport.update({
+  id: '/mesas',
+  path: '/mesas',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -81,6 +93,8 @@ export interface FileRoutesByFullPath {
   '/admin/login': typeof AdminLoginRoute
   '/admin/setup': typeof AdminSetupRoute
   '/admin/utilizadores': typeof AdminUtilizadoresRoute
+  '/admin/pedidos': typeof AdminPedidosRoute
+  '/admin/mesas': typeof AdminMesasRoute
   '/admin/': typeof AdminIndexRoute
 }
 export interface FileRoutesByTo {
@@ -92,6 +106,8 @@ export interface FileRoutesByTo {
   '/admin/login': typeof AdminLoginRoute
   '/admin/setup': typeof AdminSetupRoute
   '/admin/utilizadores': typeof AdminUtilizadoresRoute
+  '/admin/pedidos': typeof AdminPedidosRoute
+  '/admin/mesas': typeof AdminMesasRoute
   '/admin': typeof AdminIndexRoute
 }
 export interface FileRoutesById {
@@ -105,6 +121,8 @@ export interface FileRoutesById {
   '/admin/login': typeof AdminLoginRoute
   '/admin/setup': typeof AdminSetupRoute
   '/admin/utilizadores': typeof AdminUtilizadoresRoute
+  '/admin/pedidos': typeof AdminPedidosRoute
+  '/admin/mesas': typeof AdminMesasRoute
   '/admin/': typeof AdminIndexRoute
 }
 export interface FileRouteTypes {
@@ -233,6 +251,8 @@ interface AdminRouteRouteChildren {
   AdminLoginRoute: typeof AdminLoginRoute
   AdminSetupRoute: typeof AdminSetupRoute
   AdminUtilizadoresRoute: typeof AdminUtilizadoresRoute
+  AdminPedidosRoute: typeof AdminPedidosRoute
+  AdminMesasRoute: typeof AdminMesasRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
@@ -243,6 +263,8 @@ const AdminRouteRouteChildren: AdminRouteRouteChildren = {
   AdminLoginRoute: AdminLoginRoute,
   AdminSetupRoute: AdminSetupRoute,
   AdminUtilizadoresRoute: AdminUtilizadoresRoute,
+  AdminPedidosRoute: AdminPedidosRoute,
+  AdminMesasRoute: AdminMesasRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
 
