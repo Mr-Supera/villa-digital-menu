@@ -72,6 +72,7 @@ export const settingsQuery = () =>
 
 /** Constrói o URL de leitura de uma imagem do bucket privado "menu-images". */
 export async function signedImageUrl(path: string): Promise<string | null> {
-  const { data } = await supabase.storage.from("menu-images").createSignedUrl(path, 60 * 60 * 24);
-  return data?.signedUrl ?? null;
+  const { getSignedImageUrl } = await import("@/lib/images.functions");
+  const { url } = await getSignedImageUrl({ data: { path } });
+  return url;
 }
