@@ -25,7 +25,7 @@ SET name_en = CASE i.name_pt
   WHEN 'Chá de Leite' THEN 'Milk Tea' WHEN 'Chocolate Quente' THEN 'Hot Chocolate'
   WHEN 'Branco' THEN 'White' WHEN 'Tinto' THEN 'Red' WHEN 'Verde' THEN 'Vinho Verde'
   WHEN 'Porto' THEN 'Port' WHEN 'Licor' THEN 'Liqueur' WHEN 'Sem Álcool' THEN 'Alcohol-Free'
-  ELSE i.name_pt
+  ELSE regexp_replace(regexp_replace(regexp_replace(regexp_replace(regexp_replace(regexp_replace(regexp_replace(regexp_replace(i.name_pt,'Pequena?','Small','gi'),'Grande','Large','gi'),'Lata','Can','gi'),'Garrafa','Bottle','gi'),'Sem Álcool','Alcohol-Free','gi'),'Licor','Liqueur','gi'),'Porto','Port','gi'),'Branco','White','gi'),'Tinto','Red','gi')
 END
 FROM public.categories AS c
 WHERE c.id=i.category_id
