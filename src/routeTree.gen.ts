@@ -137,6 +137,8 @@ export interface FileRouteTypes {
     | '/admin/login'
     | '/admin/setup'
     | '/admin/utilizadores'
+    | '/admin/pedidos'
+    | '/admin/mesas'
     | '/admin/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -148,6 +150,8 @@ export interface FileRouteTypes {
     | '/admin/login'
     | '/admin/setup'
     | '/admin/utilizadores'
+    | '/admin/pedidos'
+    | '/admin/mesas'
     | '/admin'
   id:
     | '__root__'
