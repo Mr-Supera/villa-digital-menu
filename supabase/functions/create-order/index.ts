@@ -47,8 +47,8 @@ Deno.serve(async (req) => {
   try {
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
     const SERVICE_ROLE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-    const RATE_SALT = Deno.env.get("ORDER_RATE_LIMIT_SALT");
-    if (!SUPABASE_URL || !SERVICE_ROLE || !RATE_SALT) return json({ error: "Serviço indisponível." }, 503);
+    const RATE_SALT = Deno.env.get("ORDER_RATE_LIMIT_SALT") || SERVICE_ROLE;
+    if (!SUPABASE_URL || !SERVICE_ROLE) return json({ error: "Serviço indisponível." }, 503);
 
     const raw = await req.json();
     const parsed = BodySchema.safeParse(raw);
