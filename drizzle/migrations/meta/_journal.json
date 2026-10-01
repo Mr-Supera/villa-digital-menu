@@ -29,6 +29,13 @@
       "when": 1790760652248,
       "tag": "0003_seed_bebidas",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1790842020560,
+      "tag": "0004_add_staff_role",
+      "breakpoints": true
     }
   ]
 }
