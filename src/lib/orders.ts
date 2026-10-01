@@ -34,6 +34,55 @@ export const createOrder = async (body:{
   const controller=new AbortController();
   const timeout=window.setTimeout(()=>controller.abort(),15000);
   try {
+    const {data,error}=await (supabase.rpc as any)("create_order",{
+      p_table_number:body.table_number,p_items:body.items,p_customer_name:body.customer_name??null,
+      p_customer_note:body.customer_note??null,p_honeypot:body.honeypot??null
+    });
+    if(error) throw error;
+    if(data?.code){
+      const e=new Error(data.code) as Error & {code?:string}; e.code=data.code; throw e;
+    }
+    if(!data?.order_number||!data?.public_token){
+      const e=new Error("Resposta inválida do servidor.") as Error & {code?:string}; e.code="E_SERVIDOR"; throw e;
+    }
+    return data as {order_number:number;public_token:string};
+  } finally { window.clearTimeout(timeout); }
+};se/client";
+
+export type RestaurantTable = { id:string; number:string; label:string|null; is_active:boolean; sort_order:number };
+export type CartLine = { itemId:string; quantity:number; note:string };
+export type OrderStatus = "novo"|"em_preparacao"|"pronto"|"entregue"|"cancelado";
+
+export const tablesQuery = () => ({
+  queryKey:["restaurant-tables"],
+  staleTime:5*60*1000,
+  queryFn:async():Promise<RestaurantTable[]> => {
+    const {data,error}=await supabase.from("restaurant_tables").select("id,number,label,is_active,sort_order").eq("is_active",true).order("sort_order").order("number");
+    if(error) throw error;
+    return (data??[]) as RestaurantTable[];
+  },
+});
+
+export const ordersQuery = () => ({
+  queryKey:["orders"],
+  staleTime:5*1000,
+  queryFn:async()=> {
+    const {data,error}=await (supabase.from("orders") as any).select("*, order_items(*)").order("created_at",{ascending:false});
+    if(error) throw error;
+    return (data??[]) as any[];
+  },
+});
+
+export const createOrder = async (body:{
+  table_number:string;
+  items:{item_id:string;quantity:number;note?:string|null}[];
+  customer_name?:string|null;
+  customer_note?:string|null;
+  honeypot?:string;
+}) => {
+  const controller=new AbortController();
+  const timeout=window.setTimeout(()=>controller.abort(),15000);
+  try {
     const {data,error}=await supabase.functions.invoke("create-order",{body});
     if(error){
       let payload:any=null;
