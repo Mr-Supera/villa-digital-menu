@@ -47,7 +47,9 @@ Deno.serve(async (req) => {
   try {
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
     const SERVICE_ROLE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-    const RATE_SALT = Deno.env.get("ORDER_RATE_LIMIT_SALT") || SERVICE_ROLE;
+    const configuredSalt = Deno.env.get("IP_HASH_SALT") || Deno.env.get("ORDER_RATE_LIMIT_SALT");
+    const RATE_SALT = configuredSalt || SERVICE_ROLE;
+    if (!configuredSalt) console.warn("IP_HASH_SALT is not configured; using the service-role key as the fallback salt.");
     if (!SUPABASE_URL || !SERVICE_ROLE) return json({ error: "Serviço indisponível." }, 503);
 
     const raw = await req.json();
@@ -75,10 +77,11 @@ Deno.serve(async (req) => {
     const tableResult = await supabase
       .from("restaurant_tables")
       .select("id,number")
-      .eq("number", tableNumber)
-      .eq("is_active", true)
-      .maybeSingle();
-    if (tableResult.error || !tableResult.data) return json({ error: "Não foi possível criar o pedido." }, 400);
+      .eq("is_active", true);
+    if (tableResult.error) throw tableResult.error;
+    const normalizedTable = tableNumber.trim().toLocaleLowerCase();
+    const matchedTable = (tableResult.data ?? []).find((t: any) => String(t.number ?? "").trim().toLocaleLowerCase() === normalizedTable);
+    if (!matchedTable) return json({ error: "Mesa não encontrada" }, 400);
 
     const itemIds = parsed.data.items.map(x => x.item_id);
     const itemResult = await supabase
@@ -92,7 +95,7 @@ Deno.serve(async (req) => {
 
     const lines = parsed.data.items.map(line => {
       const item: any = byId.get(line.item_id);
-      if (!item || !item.is_active || !item.is_available) throw new Error("ITEM_UNAVAILABLE");
+      if (!item || !item.is_active || item.is_available === false) throw new Error("ITEM_UNAVAILABLE");
       return {
         item_id: item.id,
         name_snapshot: item.name_pt,
@@ -121,8 +124,8 @@ Deno.serve(async (req) => {
 
     const total = Number(lines.reduce((sum, line) => sum + line.price_snapshot * line.quantity, 0).toFixed(2));
     const orderResult = await supabase.from("orders").insert({
-      table_id: tableResult.data.id,
-      table_number: tableResult.data.number,
+      table_id: matchedTable.id,
+      table_number: matchedTable.number,
       customer_name: clean(parsed.data.customer_name, 40) || null,
       customer_note: clean(parsed.data.customer_note, 200) || null,
       total,
