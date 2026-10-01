@@ -4,7 +4,7 @@ import { Search, Star, ArrowUp, X } from "lucide-react";
 import { useMemo, useState, useEffect } from "react";
 import { categoriesQuery, itemsQuery, settingsQuery, signedImageUrl } from "@/lib/menu-queries";
 import { formatPrice, normalize } from "@/lib/format";
-import { LanguageProvider, getLocalized, useLang } from "@/lib/i18n";
+import { LanguageProvider, getLocalized, pick, useLang } from "@/lib/i18n";
 import { CategoryIcons, DividerFlourish, OrnamentalFrame } from "@/lib/menu-visual";
 
 export const Route = createFileRoute("/")({ component: () => <LanguageProvider><PublicMenu /></LanguageProvider> });
