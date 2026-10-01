@@ -40,7 +40,7 @@ export const createOrder = async (body:{
 export async function getOrderStatus(token:string){
   const {data,error}=await (supabase.rpc as any)("get_order_status",{p_token:token});
   if(error) throw error;
-  return data as {order_number:number;status:OrderStatus;table_number:string;items:{name:string;quantity:number}[]}|null;
+  return data as {order_number:number;status:OrderStatus;table_number:string;created_at:string;items:{name:string;quantity:number}[]}|null;
 }
 
 export function formatOrderAge(createdAt:string, now=Date.now()){
