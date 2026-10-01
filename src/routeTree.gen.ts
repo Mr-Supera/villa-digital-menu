@@ -164,6 +164,8 @@ export interface FileRouteTypes {
     | '/admin/login'
     | '/admin/setup'
     | '/admin/utilizadores'
+    | '/admin/pedidos'
+    | '/admin/mesas'
     | '/admin/'
   fileRoutesById: FileRoutesById
 }
