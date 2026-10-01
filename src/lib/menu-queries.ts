@@ -59,7 +59,7 @@ export const itemsQuery = (all = false) =>
 
 export const settingsQuery = () =>
   queryOptions({
-    queryKey: ["settings"],
+    queryKey: ["settings", all],
     staleTime: 5 * 60 * 1000,
     queryFn: async (): Promise<Settings> => {
       const { data, error } = await supabase.from("settings").select("key, value");
