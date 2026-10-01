@@ -42,7 +42,7 @@ async function hashIp(ip: string, salt: string) {
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
-  if (req.method !== "POST") return json({ error: "Pedido inválido." }, 405);
+  if (req.method !== "POST") return json({ error: "E_SERVIDOR", code: "E_SERVIDOR", message: "Pedido inválido." }, 405);
 
   try {
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
@@ -50,11 +50,11 @@ Deno.serve(async (req) => {
     const configuredSalt = Deno.env.get("IP_HASH_SALT") || Deno.env.get("ORDER_RATE_LIMIT_SALT");
     const RATE_SALT = configuredSalt || SERVICE_ROLE;
     if (!configuredSalt) console.warn("IP_HASH_SALT is not configured; using the service-role key as the fallback salt.");
-    if (!SUPABASE_URL || !SERVICE_ROLE) return json({ error: "Serviço indisponível." }, 503);
+    if (!SUPABASE_URL || !SERVICE_ROLE) return json({ error: "E_SERVIDOR", code: "E_SERVIDOR", message: "Serviço indisponível." }, 503);
 
     const raw = await req.json();
     const parsed = BodySchema.safeParse(raw);
-    if (!parsed.success) return json({ error: "Pedido inválido." }, 400);
+    if (!parsed.success) return json({ error: "E_SERVIDOR", code: "E_SERVIDOR", message: "Pedido inválido." }, 400);
 
     if (clean(parsed.data.honeypot, 200)) return json({ ok: true }, 200);
 
@@ -68,10 +68,10 @@ Deno.serve(async (req) => {
       .in("key", ["ordering_enabled", "max_items_per_order", "order_cooldown_seconds"]);
     if (settingsResult.error) throw settingsResult.error;
     const settings = Object.fromEntries((settingsResult.data ?? []).map((x: any) => [x.key, x.value ?? ""]));
-    if (settings.ordering_enabled !== "true") return json({ error: "Pedidos pela mesa indisponíveis de momento." }, 409);
+    if (settings.ordering_enabled !== "true") return json({ error: "E_OFF", code: "E_OFF", message: "Os pedidos pela mesa estão desligados." }, 409);
 
     const maxItems = Math.max(1, Math.min(30, Number(settings.max_items_per_order) || 30));
-    if (parsed.data.items.length > maxItems) return json({ error: "O pedido excede o limite permitido." }, 400);
+    if (parsed.data.items.length > maxItems) return json({ error: "E_LIMITE", code: "E_LIMITE", message: "O pedido excede o limite permitido." }, 400);
 
     const tableNumber = clean(parsed.data.table_number, 40);
     const tableResult = await supabase
@@ -81,7 +81,7 @@ Deno.serve(async (req) => {
     if (tableResult.error) throw tableResult.error;
     const normalizedTable = tableNumber.trim().toLocaleLowerCase();
     const matchedTable = (tableResult.data ?? []).find((t: any) => String(t.number ?? "").trim().toLocaleLowerCase() === normalizedTable);
-    if (!matchedTable) return json({ error: "Mesa não encontrada" }, 400);
+    if (!matchedTable) return json({ error: "E_MESA", code: "E_MESA", message: "Mesa não encontrada" }, 400);
 
     const itemIds = parsed.data.items.map(x => x.item_id);
     const itemResult = await supabase
@@ -91,11 +91,11 @@ Deno.serve(async (req) => {
     if (itemResult.error) throw itemResult.error;
 
     const byId = new Map((itemResult.data ?? []).map((x: any) => [x.id, x]));
-    if (byId.size !== new Set(itemIds).size) return json({ error: "Um ou mais itens já não estão disponíveis." }, 400);
+    if (byId.size !== new Set(itemIds).size) return json({ error: "E_ITEM", code: "E_ITEM", message: "Algum prato já não está disponível." }, 409);
 
     const lines = parsed.data.items.map(line => {
       const item: any = byId.get(line.item_id);
-      if (!item || !item.is_active || item.is_available === false) throw new Error("ITEM_UNAVAILABLE");
+      if (!item || !item.is_active || item.is_available === false) throw new Error("E_ITEM");
       return {
         item_id: item.id,
         name_snapshot: item.name_pt,
@@ -151,6 +151,6 @@ Deno.serve(async (req) => {
       return json({ error: "Um ou mais itens já não estão disponíveis." }, 409);
     }
     console.error(error);
-    return json({ error: "Não foi possível criar o pedido." }, 500);
+    return json({ error: "E_SERVIDOR", code: "E_SERVIDOR", message: "Não foi possível criar o pedido." }, 500);
   }
 });
