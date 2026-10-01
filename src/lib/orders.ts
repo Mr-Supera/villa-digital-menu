@@ -31,10 +31,24 @@ export const createOrder = async (body:{
   customer_note?:string|null;
   honeypot?:string;
 }) => {
-  const {data,error}=await supabase.functions.invoke("create-order",{body});
-  if(error) throw error;
-  if(data?.error) throw new Error(data.error);
-  return data as {order_number:number;public_token:string};
+  const controller=new AbortController();
+  const timeout=window.setTimeout(()=>controller.abort(),15000);
+  try {
+    const {data,error}=await supabase.functions.invoke("create-order",{body,fetchOptions:{signal:controller.signal}});
+    if(error){
+      let payload:any=null;
+      try { payload=await (error as any).context?.json?.(); } catch {}
+      const code=payload?.code||payload?.error||"E_SERVIDOR";
+      const message=payload?.message||payload?.error||error.message||"Não foi possível enviar o pedido.";
+      const e=new Error(message) as Error & {code?:string};
+      e.code=code;
+      throw e;
+    }
+    if(!data?.order_number||!data?.public_token){
+      const e=new Error("Resposta inválida do servidor.") as Error & {code?:string}; e.code="E_SERVIDOR"; throw e;
+    }
+    return data as {order_number:number;public_token:string};
+  } finally { window.clearTimeout(timeout); }
 };
 
 export async function getOrderStatus(token:string){
