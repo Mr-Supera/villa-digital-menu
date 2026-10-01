@@ -16,7 +16,7 @@ const localDate=(d:Date|string)=>new Date(d).toLocaleDateString("en-CA");
 const label=(s:OrderStatus)=>({novo:"Novos",em_preparacao:"Em preparação",pronto:"Prontos",entregue:"Entregues",cancelado:"Cancelados"}[s]);
 
 function OrdersPage(){
-  const q=useQuery(ordersQuery()),qc=useQueryClient();
+  const q=useQuery({...ordersQuery(),refetchInterval:10000,refetchOnWindowFocus:true}),qc=useQueryClient();
   const ordering=useQuery({queryKey:["ordering-status"],queryFn:getOrderingStatus,staleTime:5000,refetchInterval:15000,refetchOnWindowFocus:true});
   const orders=q.data??[];
   const [tab,setTab]=useState<OrderStatus>("novo");
@@ -29,10 +29,11 @@ function OrdersPage(){
     const connect=()=>{
       channel=supabase.channel("orders-live")
         .on("postgres_changes",{event:"*",schema:"public",table:"orders"},()=>{qc.invalidateQueries({queryKey:["orders"]});qc.invalidateQueries({queryKey:["admin-new-orders"]})})
+        .on("postgres_changes",{event:"*",schema:"public",table:"order_items"},()=>{qc.invalidateQueries({queryKey:["orders"]})})
         .subscribe((status:string)=>setRealtime(status==="SUBSCRIBED"));
     };
     connect();
-    const fallback=window.setInterval(()=>{qc.invalidateQueries({queryKey:["orders"]});},15000);
+    const fallback=window.setInterval(()=>{qc.invalidateQueries({queryKey:["orders"]});},10000);
     return()=>{window.clearInterval(fallback);if(channel)supabase.removeChannel(channel)};
   },[qc]);
 
@@ -58,6 +59,7 @@ function OrdersPage(){
 
   const receipt=printId?orders.find(o=>o.id===printId):null;
   return <AdminShell ordersOnly>
+    {q.error&&<div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-3 text-sm text-destructive"><span>Sem permissão para ver pedidos. {q.error instanceof Error?q.error.message:"Não foi possível carregar os pedidos."}</span><button onClick={()=>q.refetch()} className="rounded-lg border border-destructive/40 px-3 py-1.5 font-semibold">Tentar de novo</button></div>}
     <div className="flex flex-wrap items-center justify-between gap-3"><div><h1 className="text-3xl font-bold text-forest">Pedidos</h1><p className="mt-1 text-sm text-muted-foreground">{realtime?"Ligado em tempo real":"Sem ligação em tempo real — actualização automática activa"}</p></div><div className="flex flex-wrap items-center gap-2"><OrderingToggle/>{!sound&&<button onClick={enableSound} className="rounded-lg bg-forest px-3 py-2 text-sm font-semibold text-cream"><Volume2 className="mr-1 inline h-4 w-4"/>Activar som</button>}{sound&&<button onClick={()=>setSound(false)} className="rounded-lg border px-3 py-2 text-sm"><VolumeX className="mr-1 inline h-4 w-4"/>Silenciar</button>}{!realtime&&<span className="rounded-lg border border-destructive/40 bg-destructive/5 px-3 py-2 text-sm text-destructive">Sem ligação em tempo real</span>}</div></div>
     {ordering.data?.enabled===false&&<div className="mt-4 rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm font-semibold text-destructive">Os pedidos pela mesa estão desligados. Os clientes não podem fazer pedidos.</div>}
     <div className="mt-5 grid grid-cols-3 gap-1 rounded-xl border bg-card p-1 md:hidden">{columns.map(s=><button key={s} onClick={()=>setTab(s)} className={"rounded-lg px-2 py-2 text-xs font-semibold "+(tab===s?"bg-forest text-cream":"text-forest")}>{label(s)} <span className="ml-1 rounded-full bg-gold/20 px-1.5">{orders.filter(o=>o.status===s).length}</span></button>)}</div>
@@ -73,7 +75,7 @@ function OrderCard({order,onSeen,onNext,onCancel,onPrint,next}:{order:any;onSeen
   const old=order.status==="novo"&&(now-new Date(order.created_at).getTime())>15*60000;
   return <article onPointerDown={()=>onSeen(order)} className={"rounded-xl border bg-card p-4 "+(!order.seen_at?"ring-2 ring-gold":"")}>
     <div className="flex items-start justify-between gap-3"><div><div className="text-2xl font-black text-forest">MESA {order.table_number}</div><div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground"><Clock3 className="h-3.5 w-3.5"/>{new Date(order.created_at).toLocaleTimeString("pt-PT",{hour:"2-digit",minute:"2-digit"})} · <span className={old?"font-bold text-destructive":""}>{formatOrderAge(order.created_at,now)}</span></div></div><div className="text-right"><div className="font-bold">#{order.order_number}</div><div className="mt-1 text-sm font-semibold text-forest">{Number(order.total).toLocaleString("pt-PT",{minimumFractionDigits:2})} MT</div></div></div>
-    <div className="mt-4 space-y-2 border-y py-3">{(order.order_items||[]).map((x:any)=><div key={x.id} className="text-sm"><b>{x.quantity}×</b> {x.name_snapshot}{x.note&&<div className="ml-5 text-xs text-muted-foreground">Nota: {x.note}</div>}</div>)}</div>
+    <div className="mt-4 space-y-2 border-y py-3">{(Array.isArray(order.order_items)&&order.order_items.length>0)?order.order_items.map((x:any)=><div key={x.id} className="text-sm"><b>{x.quantity}×</b> {x.name_snapshot}{x.note&&<div className="ml-5 text-xs text-muted-foreground">Nota: {x.note}</div>}</div>)}</div>
     {order.customer_name&&<p className="mt-3 text-sm"><b>Cliente:</b> {order.customer_name}</p>}{order.customer_note&&<p className="mt-1 text-sm"><b>Obs.:</b> {order.customer_note}</p>}
     <div className="mt-4 flex flex-wrap gap-2"><button disabled={!next} onClick={()=>next&&onNext(order,next)} className="flex-1 rounded-lg bg-forest px-3 py-2.5 text-sm font-semibold text-cream disabled:opacity-40">{next==="em_preparacao"?"Avançar: Em preparação":next==="pronto"?"Avançar: Pronto":next==="entregue"?"Marcar entregue":"Concluído"}</button><button onClick={()=>onCancel(order)} className="rounded-lg border border-destructive/40 px-3 py-2.5 text-sm text-destructive">Cancelar</button><button onClick={()=>onPrint(order.id)} className="rounded-lg border px-3 py-2.5 text-sm"><Printer className="mr-1 inline h-4 w-4"/>Imprimir</button></div>
   </article>
