@@ -17,10 +17,10 @@ import { Route as AdminCategoriasRouteImport } from './routes/admin/categorias'
 import { Route as AdminDefinicoesRouteImport } from './routes/admin/definicoes'
 import { Route as AdminItensRouteImport } from './routes/admin/itens'
 import { Route as AdminLoginRouteImport } from './routes/admin/login'
+import { Route as AdminMesasRouteImport } from './routes/admin/mesas'
+import { Route as AdminPedidosRouteImport } from './routes/admin/pedidos'
 import { Route as AdminSetupRouteImport } from './routes/admin/setup'
 import { Route as AdminUtilizadoresRouteImport } from './routes/admin/utilizadores'
-import { Route as AdminPedidosRouteImport } from './routes/admin/pedidos'
-import { Route as AdminMesasRouteImport } from './routes/admin/mesas'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -62,6 +62,16 @@ const AdminLoginRoute = AdminLoginRouteImport.update({
   path: '/login',
   getParentRoute: () => AdminRouteRoute,
 } as any)
+const AdminMesasRoute = AdminMesasRouteImport.update({
+  id: '/mesas',
+  path: '/mesas',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminPedidosRoute = AdminPedidosRouteImport.update({
+  id: '/pedidos',
+  path: '/pedidos',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
 const AdminSetupRoute = AdminSetupRouteImport.update({
   id: '/setup',
   path: '/setup',
@@ -70,16 +80,6 @@ const AdminSetupRoute = AdminSetupRouteImport.update({
 const AdminUtilizadoresRoute = AdminUtilizadoresRouteImport.update({
   id: '/utilizadores',
   path: '/utilizadores',
-  getParentRoute: () => AdminRouteRoute,
-} as any)
-const AdminPedidosRoute = AdminPedidosRouteImport.update({
-  id: '/pedidos',
-  path: '/pedidos',
-  getParentRoute: () => AdminRouteRoute,
-} as any)
-const AdminMesasRoute = AdminMesasRouteImport.update({
-  id: '/mesas',
-  path: '/mesas',
   getParentRoute: () => AdminRouteRoute,
 } as any)
 
@@ -91,10 +91,10 @@ export interface FileRoutesByFullPath {
   '/admin/definicoes': typeof AdminDefinicoesRoute
   '/admin/itens': typeof AdminItensRoute
   '/admin/login': typeof AdminLoginRoute
+  '/admin/mesas': typeof AdminMesasRoute
+  '/admin/pedidos': typeof AdminPedidosRoute
   '/admin/setup': typeof AdminSetupRoute
   '/admin/utilizadores': typeof AdminUtilizadoresRoute
-  '/admin/pedidos': typeof AdminPedidosRoute
-  '/admin/mesas': typeof AdminMesasRoute
   '/admin/': typeof AdminIndexRoute
 }
 export interface FileRoutesByTo {
@@ -104,10 +104,10 @@ export interface FileRoutesByTo {
   '/admin/definicoes': typeof AdminDefinicoesRoute
   '/admin/itens': typeof AdminItensRoute
   '/admin/login': typeof AdminLoginRoute
+  '/admin/mesas': typeof AdminMesasRoute
+  '/admin/pedidos': typeof AdminPedidosRoute
   '/admin/setup': typeof AdminSetupRoute
   '/admin/utilizadores': typeof AdminUtilizadoresRoute
-  '/admin/pedidos': typeof AdminPedidosRoute
-  '/admin/mesas': typeof AdminMesasRoute
   '/admin': typeof AdminIndexRoute
 }
 export interface FileRoutesById {
@@ -119,10 +119,10 @@ export interface FileRoutesById {
   '/admin/definicoes': typeof AdminDefinicoesRoute
   '/admin/itens': typeof AdminItensRoute
   '/admin/login': typeof AdminLoginRoute
+  '/admin/mesas': typeof AdminMesasRoute
+  '/admin/pedidos': typeof AdminPedidosRoute
   '/admin/setup': typeof AdminSetupRoute
   '/admin/utilizadores': typeof AdminUtilizadoresRoute
-  '/admin/pedidos': typeof AdminPedidosRoute
-  '/admin/mesas': typeof AdminMesasRoute
   '/admin/': typeof AdminIndexRoute
 }
 export interface FileRouteTypes {
@@ -135,10 +135,10 @@ export interface FileRouteTypes {
     | '/admin/definicoes'
     | '/admin/itens'
     | '/admin/login'
+    | '/admin/mesas'
+    | '/admin/pedidos'
     | '/admin/setup'
     | '/admin/utilizadores'
-    | '/admin/pedidos'
-    | '/admin/mesas'
     | '/admin/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -148,10 +148,10 @@ export interface FileRouteTypes {
     | '/admin/definicoes'
     | '/admin/itens'
     | '/admin/login'
+    | '/admin/mesas'
+    | '/admin/pedidos'
     | '/admin/setup'
     | '/admin/utilizadores'
-    | '/admin/pedidos'
-    | '/admin/mesas'
     | '/admin'
   id:
     | '__root__'
@@ -162,10 +162,10 @@ export interface FileRouteTypes {
     | '/admin/definicoes'
     | '/admin/itens'
     | '/admin/login'
+    | '/admin/mesas'
+    | '/admin/pedidos'
     | '/admin/setup'
     | '/admin/utilizadores'
-    | '/admin/pedidos'
-    | '/admin/mesas'
     | '/admin/'
   fileRoutesById: FileRoutesById
 }
@@ -233,6 +233,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminLoginRouteImport
       parentRoute: typeof AdminRouteRoute
     }
+    '/admin/mesas': {
+      id: '/admin/mesas'
+      path: '/mesas'
+      fullPath: '/admin/mesas'
+      preLoaderRoute: typeof AdminMesasRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/admin/pedidos': {
+      id: '/admin/pedidos'
+      path: '/pedidos'
+      fullPath: '/admin/pedidos'
+      preLoaderRoute: typeof AdminPedidosRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
     '/admin/setup': {
       id: '/admin/setup'
       path: '/setup'
@@ -247,20 +261,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminUtilizadoresRouteImport
       parentRoute: typeof AdminRouteRoute
     }
-    '/admin/pedidos': {
-      id: '/admin/pedidos'
-      path: '/pedidos'
-      fullPath: '/admin/pedidos'
-      preLoaderRoute: typeof AdminPedidosRouteImport
-      parentRoute: typeof AdminRouteRoute
-    }
-    '/admin/mesas': {
-      id: '/admin/mesas'
-      path: '/mesas'
-      fullPath: '/admin/mesas'
-      preLoaderRoute: typeof AdminMesasRouteImport
-      parentRoute: typeof AdminRouteRoute
-    }
   }
 }
 
@@ -269,10 +269,10 @@ interface AdminRouteRouteChildren {
   AdminDefinicoesRoute: typeof AdminDefinicoesRoute
   AdminItensRoute: typeof AdminItensRoute
   AdminLoginRoute: typeof AdminLoginRoute
+  AdminMesasRoute: typeof AdminMesasRoute
+  AdminPedidosRoute: typeof AdminPedidosRoute
   AdminSetupRoute: typeof AdminSetupRoute
   AdminUtilizadoresRoute: typeof AdminUtilizadoresRoute
-  AdminPedidosRoute: typeof AdminPedidosRoute
-  AdminMesasRoute: typeof AdminMesasRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
@@ -281,10 +281,10 @@ const AdminRouteRouteChildren: AdminRouteRouteChildren = {
   AdminDefinicoesRoute: AdminDefinicoesRoute,
   AdminItensRoute: AdminItensRoute,
   AdminLoginRoute: AdminLoginRoute,
+  AdminMesasRoute: AdminMesasRoute,
+  AdminPedidosRoute: AdminPedidosRoute,
   AdminSetupRoute: AdminSetupRoute,
   AdminUtilizadoresRoute: AdminUtilizadoresRoute,
-  AdminPedidosRoute: AdminPedidosRoute,
-  AdminMesasRoute: AdminMesasRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
 

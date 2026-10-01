@@ -117,6 +117,107 @@ export type Database = {
           },
         ]
       }
+      order_items: {
+        Row: {
+          id: string
+          item_id: string | null
+          name_snapshot: string
+          note: string | null
+          order_id: string
+          price_snapshot: number
+          quantity: number
+        }
+        Insert: {
+          id?: string
+          item_id?: string | null
+          name_snapshot: string
+          note?: string | null
+          order_id: string
+          price_snapshot: number
+          quantity: number
+        }
+        Update: {
+          id?: string
+          item_id?: string | null
+          name_snapshot?: string
+          note?: string | null
+          order_id?: string
+          price_snapshot?: number
+          quantity?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_items_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      orders: {
+        Row: {
+          created_at: string
+          customer_name: string | null
+          customer_note: string | null
+          id: string
+          ip_hash: string | null
+          order_number: number
+          public_token: string
+          seen_at: string | null
+          status: string
+          table_id: string
+          table_number: string
+          total: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          customer_name?: string | null
+          customer_note?: string | null
+          id?: string
+          ip_hash?: string | null
+          order_number?: number
+          public_token?: string
+          seen_at?: string | null
+          status?: string
+          table_id: string
+          table_number: string
+          total?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          customer_name?: string | null
+          customer_note?: string | null
+          id?: string
+          ip_hash?: string | null
+          order_number?: number
+          public_token?: string
+          seen_at?: string | null
+          status?: string
+          table_id?: string
+          table_number?: string
+          total?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_table_id_fkey"
+            columns: ["table_id"]
+            isOneToOne: false
+            referencedRelation: "restaurant_tables"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       price_history: {
         Row: {
           changed_at: string
@@ -158,43 +259,52 @@ export type Database = {
           },
         ]
       }
-      settings: {
+      restaurant_tables: {
         Row: {
-          key: string
-          updated_at: string
-          value: string | null
-          is_public: boolean
+          id: string
+          is_active: boolean
+          label: string | null
+          number: string
+          sort_order: number
         }
         Insert: {
-          key: string
-          updated_at?: string
-          value?: string | null
-          is_public?: boolean
+          id?: string
+          is_active?: boolean
+          label?: string | null
+          number: string
+          sort_order?: number
         }
         Update: {
-          key?: string
-          updated_at?: string
-          value?: string | null
-          is_public?: boolean
+          id?: string
+          is_active?: boolean
+          label?: string | null
+          number?: string
+          sort_order?: number
         }
         Relationships: []
       }
-      restaurant_tables: {
-        Row: { id:string; number:string; label:string|null; is_active:boolean; sort_order:number }
-        Insert: { id?:string; number:string; label?:string|null; is_active?:boolean; sort_order?:number }
-        Update: { id?:string; number?:string; label?:string|null; is_active?:boolean; sort_order?:number }
-        Relationships: []
-      }
-      orders: {
-        Row: { id:string; order_number:number; table_id:string; table_number:string; customer_name:string|null; customer_note:string|null; status:string; total:number; public_token:string; ip_hash:string|null; seen_at:string|null; created_at:string; updated_at:string }
-        Insert: { id?:string; order_number?:number; table_id:string; table_number:string; customer_name?:string|null; customer_note?:string|null; status?:string; total?:number; public_token?:string; ip_hash?:string|null; seen_at?:string|null; created_at?:string; updated_at?:string }
-        Update: { id?:string; order_number?:number; table_id?:string; table_number?:string; customer_name?:string|null; customer_note?:string|null; status?:string; total?:number; public_token?:string; ip_hash?:string|null; seen_at?:string|null; created_at?:string; updated_at?:string }
-        Relationships: []
-      }
-      order_items: {
-        Row: { id:string; order_id:string; item_id:string|null; name_snapshot:string; price_snapshot:number; quantity:number; note:string|null }
-        Insert: { id?:string; order_id:string; item_id?:string|null; name_snapshot:string; price_snapshot:number; quantity:number; note?:string|null }
-        Update: { id?:string; order_id?:string; item_id?:string|null; name_snapshot?:string; price_snapshot?:number; quantity?:number; note?:string|null }
+      settings: {
+        Row: {
+          is_public: boolean
+          key: string
+          updated_at: string
+          updated_by: string | null
+          value: string | null
+        }
+        Insert: {
+          is_public?: boolean
+          key: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: string | null
+        }
+        Update: {
+          is_public?: boolean
+          key?: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: string | null
+        }
         Relationships: []
       }
       user_roles: {
@@ -227,8 +337,9 @@ export type Database = {
     }
     Functions: {
       admin_exists: { Args: never; Returns: boolean }
-      get_order_status: { Args: { p_token: string }; Returns: Json }
       claim_first_admin: { Args: never; Returns: boolean }
+      get_order_status: { Args: { p_token: string }; Returns: Json }
+      get_ordering_status: { Args: never; Returns: Json }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -237,6 +348,7 @@ export type Database = {
         Returns: boolean
       }
       is_staff: { Args: { _user_id: string }; Returns: boolean }
+      set_ordering_enabled: { Args: { p_enabled: boolean }; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "editor" | "staff"

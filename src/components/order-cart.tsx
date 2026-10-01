@@ -10,7 +10,8 @@ import { toast } from "sonner";
 
 type OrderCartContextValue = { enabled:boolean; add:(itemId:string)=>void; decrement:(itemId:string)=>void; quantity:(itemId:string)=>number; maxLines:number };
 const Ctx=createContext<OrderCartContextValue|null>(null);
-export const useOrderCart=()=>useContext(Ctx)!;
+const fallbackCart:OrderCartContextValue={enabled:false,add:()=>{},decrement:()=>{},quantity:()=>0,maxLines:30};
+export const useOrderCart=()=>useContext(Ctx)??fallbackCart;
 function tr(lang:"pt"|"en",pt:string,en:string){return lang==="en"?en:pt}
 const statusLabel=(lang:"pt"|"en",s:OrderStatus)=>({novo:tr(lang,"Recebido","Received"),em_preparacao:tr(lang,"Em preparação","In preparation"),pronto:tr(lang,"Pronto","Ready"),entregue:tr(lang,"Entregue","Delivered"),cancelado:tr(lang,"Cancelado","Cancelled")}[s]);
 
