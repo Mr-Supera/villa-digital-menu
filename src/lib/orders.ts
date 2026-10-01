@@ -34,7 +34,7 @@ export const createOrder = async (body:{
   const controller=new AbortController();
   const timeout=window.setTimeout(()=>controller.abort(),15000);
   try {
-    const {data,error}=await supabase.functions.invoke("create-order",{body,fetchOptions:{signal:controller.signal}});
+    const {data,error}=await supabase.functions.invoke("create-order",{body});
     if(error){
       let payload:any=null;
       try { payload=await (error as any).context?.json?.(); } catch {}
