@@ -163,38 +163,17 @@ export type Database = {
           key: string
           updated_at: string
           value: string | null
-          is_public: boolean
         }
         Insert: {
           key: string
           updated_at?: string
           value?: string | null
-          is_public?: boolean
         }
         Update: {
           key?: string
           updated_at?: string
           value?: string | null
-          is_public?: boolean
         }
-        Relationships: []
-      }
-      restaurant_tables: {
-        Row: { id:string; number:string; label:string|null; is_active:boolean; sort_order:number }
-        Insert: { id?:string; number:string; label?:string|null; is_active?:boolean; sort_order?:number }
-        Update: { id?:string; number?:string; label?:string|null; is_active?:boolean; sort_order?:number }
-        Relationships: []
-      }
-      orders: {
-        Row: { id:string; order_number:number; table_id:string; table_number:string; customer_name:string|null; customer_note:string|null; status:string; total:number; public_token:string; ip_hash:string|null; seen_at:string|null; created_at:string; updated_at:string }
-        Insert: { id?:string; order_number?:number; table_id:string; table_number:string; customer_name?:string|null; customer_note?:string|null; status?:string; total?:number; public_token?:string; ip_hash?:string|null; seen_at?:string|null; created_at?:string; updated_at?:string }
-        Update: { id?:string; order_number?:number; table_id?:string; table_number?:string; customer_name?:string|null; customer_note?:string|null; status?:string; total?:number; public_token?:string; ip_hash?:string|null; seen_at?:string|null; created_at?:string; updated_at?:string }
-        Relationships: []
-      }
-      order_items: {
-        Row: { id:string; order_id:string; item_id:string|null; name_snapshot:string; price_snapshot:number; quantity:number; note:string|null }
-        Insert: { id?:string; order_id:string; item_id?:string|null; name_snapshot:string; price_snapshot:number; quantity:number; note?:string|null }
-        Update: { id?:string; order_id?:string; item_id?:string|null; name_snapshot?:string; price_snapshot?:number; quantity?:number; note?:string|null }
         Relationships: []
       }
       user_roles: {
@@ -227,7 +206,6 @@ export type Database = {
     }
     Functions: {
       admin_exists: { Args: never; Returns: boolean }
-      get_order_status: { Args: { p_token: string }; Returns: Json }
       claim_first_admin: { Args: never; Returns: boolean }
       has_role: {
         Args: {
@@ -239,7 +217,7 @@ export type Database = {
       is_staff: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
-      app_role: "admin" | "editor" | "staff"
+      app_role: "admin" | "editor"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -367,7 +345,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "editor", "staff"],
+      app_role: ["admin", "editor"],
     },
   },
 } as const
