@@ -10,6 +10,7 @@ import { toast } from "sonner";
 export const Route=createFileRoute("/admin/pedidos")({component:OrdersPage});
 
 const columns:OrderStatus[]=["novo","em_preparacao","pronto"];
+const localDate=(d:Date|string)=>new Date(d).toLocaleDateString("en-CA");
 const label=(s:OrderStatus)=>({novo:"Novos",em_preparacao:"Em preparação",pronto:"Prontos",entregue:"Entregues",cancelado:"Cancelados"}[s]);
 
 function OrdersPage(){
@@ -18,7 +19,7 @@ function OrdersPage(){
   const [tab,setTab]=useState<OrderStatus>("novo");
   const [sound,setSound]=useState(false),[realtime,setRealtime]=useState(true),[printId,setPrintId]=useState<string|null>(null);
   const audioRef=useRef<AudioContext|null>(null),wakeRef=useRef<any>(null);
-  const [historyDate,setHistoryDate]=useState(new Date().toISOString().slice(0,10)),[historyTable,setHistoryTable]=useState("");
+  const [historyDate,setHistoryDate]=useState(localDate(new Date())),[historyTable,setHistoryTable]=useState("");
 
   useEffect(()=>{
     let channel:any;
@@ -48,7 +49,7 @@ function OrdersPage(){
   const cancel=async(order:any)=>{if(!confirm("Cancelar este pedido?"))return;await updateStatus(order,"cancelado")};
   const next=(s:OrderStatus):OrderStatus|null=>s==="novo"?"em_preparacao":s==="em_preparacao"?"pronto":s==="pronto"?"entregue":null;
 
-  const history=orders.filter(o=>(o.status==="entregue"||o.status==="cancelado")&&new Date(o.created_at).toISOString().slice(0,10)===historyDate&&(!historyTable||o.table_number===historyTable));
+  const history=orders.filter(o=>(o.status==="entregue"||o.status==="cancelado")&&localDate(o.created_at)===historyDate&&(!historyTable||o.table_number===historyTable));
   const sold=history.filter(o=>o.status==="entregue").reduce((n,o)=>n+Number(o.total),0);
   const tables=[...new Set(orders.map(o=>o.table_number))].sort();
 
