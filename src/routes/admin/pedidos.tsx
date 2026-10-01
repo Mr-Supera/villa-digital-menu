@@ -32,7 +32,6 @@ function OrdersPage(){
     return()=>{window.clearInterval(fallback);if(channel)supabase.removeChannel(channel)};
   },[qc]);
 
-  useEffect(()=>{const id=window.setInterval(()=>qc.invalidateQueries({queryKey:["orders"]}),15000);return()=>window.clearInterval(id)},[qc]);
   useEffect(()=>{const count=orders.filter(o=>o.status==="novo"&&!o.seen_at).length;document.title=(count?"("+count+") ":"")+"Pedidos | Villa das Palmeiras";return()=>{document.title="Menu | Villa das Palmeiras"}},[orders]);
   useEffect(()=>{if(!("wakeLock" in navigator))return;let active=true;const request=async()=>{try{if(active)wakeRef.current=await (navigator as any).wakeLock.request("screen")}catch{}};request();return()=>{active=false;wakeRef.current?.release?.()}},[]);
   useEffect(()=>{if(!printId)return;const id=window.setTimeout(()=>window.print(),80);const done=()=>setPrintId(null);window.addEventListener("afterprint",done);return()=>{window.clearTimeout(id);window.removeEventListener("afterprint",done)}},[printId]);
