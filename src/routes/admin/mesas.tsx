@@ -1,17 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import QRCode from "qrcode";
 import { AdminShell, Field } from "@/components/admin";
 import { supabase } from "@/integrations/supabase/client";
 import { settingsQuery, signedImageUrl } from "@/lib/menu-queries";
-import { tablesQuery } from "@/lib/orders";
+
 import { toast } from "sonner";
 
 export const Route=createFileRoute("/admin/mesas")({component:TablesPage});
 
 function TablesPage(){
-  const q=useQuery(tablesQuery()),all=useQuery({queryKey:["restaurant-tables-all"],queryFn:async()=>{const{data,error}=await supabase.from("restaurant_tables").select("*").order("sort_order").order("number");if(error)throw error;return data||[]}}),settings=useQuery(settingsQuery(true)),qc=useQueryClient();
+  const all=useQuery({queryKey:["restaurant-tables-all"],queryFn:async()=>{const{data,error}=await supabase.from("restaurant_tables").select("*").order("sort_order").order("number");if(error)throw error;return data||[]}}),settings=useQuery(settingsQuery(true)),qc=useQueryClient();
   const [edit,setEdit]=useState<any>(null),[max,setMax]=useState("10");
   const logoPath=settings.data?.logo_url;const[logo,setLogo]=useState<string|null>(null);
   useEffect(()=>{if(!logoPath){setLogo(null);return}if(logoPath.startsWith("http")){setLogo(logoPath);return}signedImageUrl(logoPath).then(setLogo)},[logoPath]);
