@@ -57,7 +57,7 @@ export const itemsQuery = (all = false) =>
     },
   });
 
-export const settingsQuery = () =>
+export const settingsQuery = (all = false) =>
   queryOptions({
     queryKey: ["settings", all],
     staleTime: 5 * 60 * 1000,
