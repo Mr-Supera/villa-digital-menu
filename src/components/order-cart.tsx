@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useMemo, useState, useRef, type ReactNode } from "react";
 import { Minus, Plus, ShoppingBag, X, CheckCircle2 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { tablesQuery, createOrder, getOrderStatus, type CartLine, type OrderStatus } from "@/lib/orders";
@@ -33,6 +33,8 @@ export function OrderCartProvider({children,items,orderingEnabled,maxLines=30}:{
     const resume=()=>{if(document.visibilityState==="visible")void poll()};void poll();const id=window.setInterval(poll,8000);document.addEventListener("visibilitychange",resume);window.addEventListener("focus",resume);return()=>{alive=false;window.clearInterval(id);document.removeEventListener("visibilitychange",resume);window.removeEventListener("focus",resume)};
   },[trackedTokens]);
   useEffect(()=>{const current=trackedOrders.find(o=>o.token===token);if(current)setConfirmation(current)},[trackedOrders,token]);
+  const previousStatuses=useRef<Record<string,OrderStatus>>({});
+  useEffect(()=>{trackedOrders.forEach(o=>{const prev=previousStatuses.current[o.token];if(o.status==="pronto"&&prev&&prev!=="pronto"&&"vibrate" in navigator){try{navigator.vibrate(180)}catch{}}previousStatuses.current[o.token]=o.status})},[trackedOrders]);
   const itemMap=useMemo(()=>new Map(items.map(i=>[i.id,i])),[items]);
   const total=cart.reduce((sum,l)=>sum+(Number(itemMap.get(l.itemId)?.price||0)*l.quantity),0),count=cart.reduce((sum,l)=>sum+l.quantity,0);
   const add=(itemId:string)=>{if(!orderingEnabled)return;const item=itemMap.get(itemId);if(!item?.is_active||!item.is_available)return;setCart(prev=>{const existing=prev.find(x=>x.itemId===itemId);if(existing)return prev.map(x=>x.itemId===itemId?{...x,quantity:Math.min(20,x.quantity+1)}:x);if(prev.length>=maxLines){toast.error(tr(lang,"Limite de itens atingido.","Item limit reached."));return prev}return [...prev,{itemId,quantity:1,note:""}]})};
