@@ -38,8 +38,12 @@ export const createOrder = async (body:{
       p_table_number:body.table_number,p_items:body.items,p_customer_name:body.customer_name??null,
       p_customer_note:body.customer_note??null,p_honeypot:body.honeypot??null
     });
-    if(error) throw error;
-    if(data?.code){
+    if(error) {
+      const e=new Error(error.message||"RPC error") as Error & {code?:string};
+      e.code=String((error as any).code||"E_SERVIDOR");
+      throw e;
+    }
+    if(data?.ok===false || data?.code){
       const e=new Error(data.code) as Error & {code?:string}; e.code=data.code; throw e;
     }
     if(!data?.order_number||!data?.public_token){
