@@ -91,11 +91,16 @@ Deno.serve(async (req) => {
     if (itemResult.error) throw itemResult.error;
 
     const byId = new Map((itemResult.data ?? []).map((x: any) => [x.id, x]));
-    if (byId.size !== new Set(itemIds).size) return json({ error: "E_ITEM", code: "E_ITEM", message: "Algum prato já não está disponível." }, 409);
+    const unavailableItemIds = parsed.data.items
+      .filter(line => {
+        const item: any = byId.get(line.item_id);
+        return !item || !item.is_active || item.is_available === false;
+      })
+      .map(line => line.item_id);
+    if (unavailableItemIds.length) return json({ error: "E_ITEM", code: "E_ITEM", message: "Algum prato já não está disponível.", item_ids: unavailableItemIds }, 409);
 
     const lines = parsed.data.items.map(line => {
       const item: any = byId.get(line.item_id);
-      if (!item || !item.is_active || item.is_available === false) throw new Error("E_ITEM");
       return {
         item_id: item.id,
         name_snapshot: item.name_pt,
