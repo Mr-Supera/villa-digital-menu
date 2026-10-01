@@ -173,3 +173,16 @@ html{scroll-behavior:smooth}
 @keyframes menu-image-in{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:scale(1)}}
 @media (min-width:768px){.public-menu-motion .menu-category{animation-duration:350ms}}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto!important}.public-menu-motion .menu-category,.menu-item,.menu-lightbox,.menu-section-content,.menu-lightbox-img,.menu-fade{animation:none!important;opacity:1!important;transform:none!important}.menu-press,.menu-tabs button{transition:none!important}.menu-press:active{transform:none!important}}
+
+
+/* Mobile ordering: stable viewport, large touch targets and keyboard-safe drawer. */
+.order-modal-panel{max-height:min(90dvh,calc(var(--order-vvh,100dvh) - 16px))}
+.order-modal-scroll{-webkit-overflow-scrolling:touch}
+.order-modal-footer{padding-bottom:max(12px,env(safe-area-inset-bottom))}
+.order-honeypot{position:absolute!important;left:-10000px!important;top:auto!important;width:1px!important;height:1px!important;opacity:0!important;pointer-events:none!important}
+.order-spinner{display:inline-block;animation:order-spin .7s linear infinite}
+@keyframes order-spin{to{transform:rotate(360deg)}}
+.menu-section-content{padding-bottom:calc(7rem + env(safe-area-inset-bottom))}
+.menu-press,button{touch-action:manipulation}
+@media (max-width:480px){.order-modal-panel{max-height:min(90dvh,calc(var(--order-vvh,100dvh) - 8px))}.menu-section-content{padding-bottom:calc(7rem + env(safe-area-inset-bottom))}}
+@media (prefers-reduced-motion:reduce){.order-spinner{animation:none!important}}
