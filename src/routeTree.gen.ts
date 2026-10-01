@@ -245,6 +245,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminUtilizadoresRouteImport
       parentRoute: typeof AdminRouteRoute
     }
+    '/admin/pedidos': {
+      id: '/admin/pedidos'
+      path: '/pedidos'
+      fullPath: '/admin/pedidos'
+      preLoaderRoute: typeof AdminPedidosRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/admin/mesas': {
+      id: '/admin/mesas'
+      path: '/mesas'
+      fullPath: '/admin/mesas'
+      preLoaderRoute: typeof AdminMesasRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
   }
 }
 
