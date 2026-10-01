@@ -22,6 +22,7 @@ function PublicMenu() {
   const parents=visibleCats.filter(c=>!c.parent_id), children=visibleCats.filter(c=>c.parent_id);
   const catItems=(id:string)=>visibleItems.filter(i=>i.category_id===id); const settingsData=settings.data??{}; const [logoUrl,setLogoUrl]=useState<string|null>(null); useEffect(()=>{let a=true; const p=settingsData['logo_url']; if(!p){setLogoUrl(null);return} if(p.startsWith("http")){setLogoUrl(p);return} signedImageUrl(p).then(u=>{if(a)setLogoUrl(u)}); return()=>{a=false}},[settingsData['logo_url']]);
   useEffect(()=>{const f=()=>setTop(window.scrollY>500);window.addEventListener("scroll",f,{passive:true});return()=>window.removeEventListener("scroll",f)},[]);
+  useEffect(()=>{const refresh=()=>{void settings.refetch()};const id=window.setInterval(refresh,30000);window.addEventListener("focus",refresh);return()=>{window.clearInterval(id);window.removeEventListener("focus",refresh)}},[settings.refetch]);
   const orderingEnabled = settingsData["ordering_enabled"] === "true";
   const maxItemsPerOrder = Math.max(1, Number(settingsData["max_items_per_order"] || 30));
   return <OrderCartProvider items={items.data ?? []} orderingEnabled={orderingEnabled} maxLines={maxItemsPerOrder}><main className="min-h-screen palm-fade public-menu-motion">
