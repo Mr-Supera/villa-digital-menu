@@ -42,7 +42,6 @@ export function OrderingToggle({ compact = false }: { compact?: boolean }) {
       await setOrderingEnabled(next);
       await q.refetch();
       toast.success(next ? (lang === "en" ? "Orders enabled" : "Pedidos ligados") : (lang === "en" ? "Orders disabled" : "Pedidos desligados"));
-      window.dispatchEvent(new Event("ordering-status-changed"));
     } catch (error: any) {
       qc.setQueryData(["ordering-status"], previous);
       toast.error(error?.message || (lang === "en" ? "Could not change table ordering." : "Não foi possível alterar os pedidos pela mesa."));
