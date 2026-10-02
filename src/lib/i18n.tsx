@@ -31,6 +31,21 @@ const dict = {
 
 type Key = keyof (typeof dict)["pt"];
 
+const errorMessages: Record<string, { pt: string; en: string }> = {
+  E_CHAVE: { pt: "Leia o QR code da sua mesa.", en: "Scan your table QR code." },
+  E_OCUPADA: { pt: "Esta mesa já está aberta. Introduza o PIN.", en: "This table is already open. Enter the PIN." },
+  E_PIN_FRACO: { pt: "PIN demasiado simples. Escolha outro.", en: "PIN is too simple. Choose another." },
+  E_PIN: { pt: "PIN incorrecto. Restam {n} tentativas.", en: "Incorrect PIN. {n} attempts left." },
+  E_BLOQUEADA: { pt: "Demasiadas tentativas. Chame o empregado.", en: "Too many attempts. Please call a staff member." },
+  E_SESSAO: { pt: "A sua mesa foi encerrada. Leia o QR code outra vez.", en: "Your table session has ended. Scan the QR code again." },
+  E_OFF: { pt: "Os pedidos pela mesa estão desligados. Por favor chame o empregado.", en: "Table ordering is turned off. Please call a staff member." },
+  E_ITEM: { pt: "Algum prato já não está disponível. Reveja o seu pedido.", en: "An item is no longer available. Review your order." },
+  E_LIMITE: { pt: "Aguarde um momento e tente de novo. Se continuar, chame o empregado.", en: "Please wait a moment and try again. If it continues, call a staff member." },
+  E_REDE: { pt: "Não foi possível enviar. Tente de novo ou chame o empregado.", en: "Could not send. Try again or call a staff member." },
+  E_DADOS: { pt: "Não foi possível enviar. Tente de novo ou chame o empregado.", en: "Could not send. Try again or call a staff member." },
+  E_SERVIDOR: { pt: "Não foi possível enviar. Tente de novo ou chame o empregado.", en: "Could not send. Try again or call a staff member." },
+};
+
 const LangContext = createContext<{
   lang: Lang;
   setLang: (l: Lang) => void;
@@ -59,7 +74,6 @@ export function useLang() {
   return useContext(LangContext);
 }
 
-/** Escolhe o texto no idioma activo, com fallback para português. */
 export function getLocalized(pt: string | null, en: string | null, lang: Lang): string {
   if (lang === "en") return (en && en.trim()) || (pt && pt.trim()) || "";
   return (pt && pt.trim()) || (en && en.trim()) || "";
@@ -67,4 +81,9 @@ export function getLocalized(pt: string | null, en: string | null, lang: Lang): 
 
 export function pick(lang: Lang, pt: string | null, en: string | null): string {
   return getLocalized(pt, en, lang);
+}
+
+export function tableErrorMessage(lang: Lang, code: string, attemptsLeft?: number): string {
+  const message = errorMessages[code] ?? errorMessages.E_SERVIDOR;
+  return (lang === "en" ? message.en : message.pt).replace("{n}", String(attemptsLeft ?? 0));
 }
