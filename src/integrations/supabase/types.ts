@@ -172,6 +172,7 @@ export type Database = {
           order_number: number
           public_token: string
           seen_at: string | null
+          session_id: string | null
           status: string
           table_id: string
           table_number: string
@@ -187,6 +188,7 @@ export type Database = {
           order_number?: number
           public_token?: string
           seen_at?: string | null
+          session_id?: string | null
           status?: string
           table_id: string
           table_number: string
@@ -202,6 +204,7 @@ export type Database = {
           order_number?: number
           public_token?: string
           seen_at?: string | null
+          session_id?: string | null
           status?: string
           table_id?: string
           table_number?: string
@@ -210,7 +213,43 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "orders_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "table_sessions"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "orders_table_id_fkey"
+            columns: ["table_id"]
+            isOneToOne: false
+            referencedRelation: "restaurant_tables"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pin_attempts: {
+        Row: {
+          attempted_at: string
+          device_hash: string
+          id: string
+          table_id: string
+        }
+        Insert: {
+          attempted_at?: string
+          device_hash: string
+          id?: string
+          table_id: string
+        }
+        Update: {
+          attempted_at?: string
+          device_hash?: string
+          id?: string
+          table_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pin_attempts_table_id_fkey"
             columns: ["table_id"]
             isOneToOne: false
             referencedRelation: "restaurant_tables"
@@ -283,6 +322,38 @@ export type Database = {
         }
         Relationships: []
       }
+      session_tokens: {
+        Row: {
+          created_at: string
+          device_hash: string | null
+          id: string
+          session_id: string
+          token_hash: string
+        }
+        Insert: {
+          created_at?: string
+          device_hash?: string | null
+          id?: string
+          session_id: string
+          token_hash: string
+        }
+        Update: {
+          created_at?: string
+          device_hash?: string | null
+          id?: string
+          session_id?: string
+          token_hash?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "session_tokens_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "table_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       settings: {
         Row: {
           is_public: boolean
@@ -306,6 +377,102 @@ export type Database = {
           value?: string | null
         }
         Relationships: []
+      }
+      table_keys: {
+        Row: {
+          access_key: string
+          rotated_at: string
+          table_id: string
+        }
+        Insert: {
+          access_key?: string
+          rotated_at?: string
+          table_id: string
+        }
+        Update: {
+          access_key?: string
+          rotated_at?: string
+          table_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "table_keys_table_id_fkey"
+            columns: ["table_id"]
+            isOneToOne: true
+            referencedRelation: "restaurant_tables"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      table_session_secrets: {
+        Row: {
+          pin_hash: string
+          session_id: string
+        }
+        Insert: {
+          pin_hash: string
+          session_id: string
+        }
+        Update: {
+          pin_hash?: string
+          session_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "table_session_secrets_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: true
+            referencedRelation: "table_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      table_sessions: {
+        Row: {
+          closed_at: string | null
+          closed_by: string | null
+          failed_attempts: number
+          id: string
+          last_activity_at: string
+          locked_until: string | null
+          opened_at: string
+          opened_device_hash: string | null
+          status: string
+          table_id: string
+        }
+        Insert: {
+          closed_at?: string | null
+          closed_by?: string | null
+          failed_attempts?: number
+          id?: string
+          last_activity_at?: string
+          locked_until?: string | null
+          opened_at?: string
+          opened_device_hash?: string | null
+          status?: string
+          table_id: string
+        }
+        Update: {
+          closed_at?: string | null
+          closed_by?: string | null
+          failed_attempts?: number
+          id?: string
+          last_activity_at?: string
+          locked_until?: string | null
+          opened_at?: string
+          opened_device_hash?: string | null
+          status?: string
+          table_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "table_sessions_table_id_fkey"
+            columns: ["table_id"]
+            isOneToOne: false
+            referencedRelation: "restaurant_tables"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
@@ -336,10 +503,41 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      _ts_device: { Args: { p_device_id: string }; Returns: string }
+      _ts_hash: { Args: { p: string }; Returns: string }
+      _ts_is_crew: { Args: never; Returns: boolean }
+      _ts_new_token: {
+        Args: { p_device_hash: string; p_session: string }
+        Returns: string
+      }
+      _ts_norm: { Args: { p: string }; Returns: string }
+      _ts_pin_weak: { Args: { p_pin: string }; Returns: boolean }
+      _ts_session: { Args: { p_token: string }; Returns: string }
+      _ts_setting: { Args: { p_key: string }; Returns: string }
+      _ts_table: { Args: { p_key: string; p_table: string }; Returns: string }
       admin_exists: { Args: never; Returns: boolean }
       claim_first_admin: { Args: never; Returns: boolean }
+      create_order: {
+        Args: {
+          p_customer_name: string
+          p_customer_note: string
+          p_device_id: string
+          p_honeypot: string
+          p_items: Json
+          p_token: string
+        }
+        Returns: Json
+      }
+      end_table_by_client: { Args: { p_token: string }; Returns: Json }
+      end_table_by_staff: { Args: { p_table_id: string }; Returns: Json }
+      expire_sessions: { Args: never; Returns: Json }
       get_order_status: { Args: { p_token: string }; Returns: Json }
       get_ordering_status: { Args: never; Returns: Json }
+      get_session_orders: { Args: { p_token: string }; Returns: Json }
+      get_table_state: {
+        Args: { p_key: string; p_table: string; p_token?: string }
+        Returns: Json
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -348,6 +546,31 @@ export type Database = {
         Returns: boolean
       }
       is_staff: { Args: { _user_id: string }; Returns: boolean }
+      join_table: {
+        Args: {
+          p_device_id: string
+          p_key: string
+          p_pin: string
+          p_table: string
+        }
+        Returns: Json
+      }
+      list_tables_status: { Args: never; Returns: Json }
+      open_table: {
+        Args: {
+          p_device_id: string
+          p_key: string
+          p_pin: string
+          p_table: string
+        }
+        Returns: Json
+      }
+      open_table_by_staff: {
+        Args: { p_pin: string; p_table_id: string }
+        Returns: Json
+      }
+      rotate_all_table_keys: { Args: never; Returns: Json }
+      rotate_table_key: { Args: { p_table_id: string }; Returns: Json }
       set_ordering_enabled: { Args: { p_enabled: boolean }; Returns: boolean }
     }
     Enums: {

@@ -43,6 +43,13 @@
       "when": 1790842055974,
       "tag": "0005_table_orders_and_toggle",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1790936162901,
+      "tag": "0006_table_sessions_pin",
+      "breakpoints": true
     }
   ]
 }
