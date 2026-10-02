@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { tableApi } from "@/lib/tableApi";
 
 export type RestaurantTable = { id:string; number:string; label:string|null; is_active:boolean; sort_order:number };
 export type CartLine = { itemId:string; quantity:number; note:string };
@@ -25,38 +26,35 @@ export const ordersQuery = () => ({
 });
 
 export const createOrder = async (body:{
-  table_number:string;
+  session_token:string;
+  device_id:string;
   items:{item_id:string;quantity:number;note?:string|null}[];
   customer_name?:string|null;
   customer_note?:string|null;
-  honeypot?:string;
+  honeypot?:string|null;
 }) => {
-  const controller=new AbortController();
-  const timeout=window.setTimeout(()=>controller.abort(),15000);
-  try {
-    const {data,error}=await (supabase.rpc as any)("create_order",{
-      p_table_number:body.table_number,p_items:body.items,p_customer_name:body.customer_name??null,
-      p_customer_note:body.customer_note??null,p_honeypot:body.honeypot??null
-    });
-    if(error) {
-      const e=new Error(error.message||"RPC error") as Error & {code?:string};
-      e.code=String((error as any).code||"E_SERVIDOR");
-      throw e;
-    }
-    if(data?.ok===false || data?.code){
-      const e=new Error(data.code) as Error & {code?:string}; e.code=data.code; throw e;
-    }
-    if(!data?.order_number||!data?.public_token){
-      const e=new Error("Resposta inválida do servidor.") as Error & {code?:string}; e.code="E_SERVIDOR"; throw e;
-    }
-    return data as {order_number:number;public_token:string};
-  } finally { window.clearTimeout(timeout); }
+  const result=await tableApi.createOrder({
+    p_token:body.session_token,
+    p_items:body.items.map(x=>({item_id:x.item_id,quantity:x.quantity,note:x.note??null})),
+    p_customer_name:body.customer_name??null,
+    p_customer_note:body.customer_note??null,
+    p_honeypot:body.honeypot??null,
+    p_device_id:body.device_id,
+  });
+  if(result?.ok===false||result?.code){
+    const e=new Error(String(result.code||"E_SERVIDOR")) as Error&{code?:string;itemIds?:string[]};
+    e.code=String(result.code||"E_SERVIDOR");
+    e.itemIds=Array.isArray(result.item_ids)?result.item_ids:[];
+    throw e;
+  }
+  if(!result?.order_number||!result?.public_token){
+    const e=new Error("Resposta inválida do servidor.") as Error&{code?:string};e.code="E_SERVIDOR";throw e;
+  }
+  return result as {order_number:number;public_token:string};
 };
 
 export async function getOrderStatus(token:string){
-  const {data,error}=await (supabase.rpc as any)("get_order_status",{p_token:token});
-  if(error) throw error;
-  return data as {order_number:number;status:OrderStatus;table_number:string;created_at:string;items:{name:string;quantity:number}[]}|null;
+  return tableApi.getOrderStatus({p_token:token}) as any;
 }
 
 export function formatOrderAge(createdAt:string, now=Date.now()){
