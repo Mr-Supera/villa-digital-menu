@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { settingsQuery, signedImageUrl } from "@/lib/menu-queries";
 
 import { toast } from "sonner";
+import { tableApi } from "@/lib/tableApi";
 
 export const Route=createFileRoute("/admin/mesas")({component:TablesPage});
 
