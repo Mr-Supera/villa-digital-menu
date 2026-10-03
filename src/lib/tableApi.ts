@@ -82,11 +82,12 @@ async function rpc<T extends Record<string, any> = Record<string, any>>(
   const result = (data ?? {}) as T;
 
   if (result && result['ok'] === false) {
-    throw makeError(normalizeCode(result['code']), {
+    const details: { attempts_left?: unknown; item_ids?: unknown; message?: string } = {
       attempts_left: result['attempts_left'],
       item_ids: result['item_ids'],
-      message: typeof result['message'] === "string" ? result['message'] : undefined,
-    });
+    };
+    if (typeof result['message'] === "string") details.message = result['message'];
+    throw makeError(normalizeCode(result['code']), details);
   }
 
   return result;
