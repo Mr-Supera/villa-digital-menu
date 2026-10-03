@@ -41,16 +41,16 @@ export const createOrder = async (body:{
     p_honeypot:body.honeypot??null,
     p_device_id:body.device_id,
   });
-  if(result?.ok===false||result?.code){
-    const e=new Error(String(result.code||"E_SERVIDOR")) as Error&{code?:string;itemIds?:string[]};
-    e.code=String(result.code||"E_SERVIDOR");
-    e.itemIds=Array.isArray(result.item_ids)?result.item_ids:[];
+  if(result?.["ok"]===false||result?.["code"]){
+    const e=new Error(String(result["code"]||"E_SERVIDOR")) as Error&{code?:string;itemIds?:string[]};
+    e.code=String(result["code"]||"E_SERVIDOR");
+    e.itemIds=Array.isArray(result["item_ids"])?result["item_ids"]:[];
     throw e;
   }
-  if(!result?.order_number||!result?.public_token){
+  if(!result?.["order_number"]||!result?.["public_token"]){
     const e=new Error("Resposta inválida do servidor.") as Error&{code?:string};e.code="E_SERVIDOR";throw e;
   }
-  return result as {order_number:number;public_token:string};
+  return result as unknown as {order_number:number;public_token:string};
 };
 
 export async function getOrderStatus(token:string){
