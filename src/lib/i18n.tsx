@@ -84,6 +84,6 @@ export function pick(lang: Lang, pt: string | null, en: string | null): string {
 }
 
 export function tableErrorMessage(lang: Lang, code: string, attemptsLeft?: number): string {
-  const message = errorMessages[code] ?? errorMessages.E_SERVIDOR;
+  const message = errorMessages[code] ?? errorMessages['E_SERVIDOR']!;
   return (lang === "en" ? message.en : message.pt).replace("{n}", String(attemptsLeft ?? 0));
 }
