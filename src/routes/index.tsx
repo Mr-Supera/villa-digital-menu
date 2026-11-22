@@ -1,13 +1,26 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Search, ArrowUp, X } from "lucide-react";
+import { Search, ArrowUp, X, Download } from "lucide-react";
 import { useMemo, useState, useEffect } from "react";
-import { categoriesQuery, itemsQuery, settingsQuery, signedImageUrl } from "@/lib/menu-queries";
+import { categoriesQuery, itemsQuery, settingsQuery, signedImageUrl, type Category, type Item, type Settings } from "@/lib/menu-queries";
 import { formatPrice, normalize } from "@/lib/format";
-import { LanguageProvider, getLocalized, pick, useLang } from "@/lib/i18n";
+import { LanguageProvider, getLocalized, pick, useLang, type Lang } from "@/lib/i18n";
 import { CategoryIcons, DividerFlourish, OrnamentalFrame } from "@/lib/menu-visual";
+import { Button } from "@/components/ui/button";
 
-export const Route = createFileRoute("/")({ component: () => <LanguageProvider><PublicMenu /></LanguageProvider> });
+export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      { title: "Menu | Villa das Palmeiras" },
+      { name: "description", content: "Consulte o menu completo do restaurante Villa das Palmeiras em Katembe-Khaelisa, Maputo." },
+      { property: "og:title", content: "Menu | Villa das Palmeiras" },
+      { property: "og:description", content: "Consulte o menu completo do restaurante Villa das Palmeiras em Katembe-Khaelisa, Maputo." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
+  component: () => <LanguageProvider><PublicMenu /></LanguageProvider>,
+});
 
 function PublicMenu() {
   const { lang, setLang, t } = useLang();
@@ -21,9 +34,9 @@ function PublicMenu() {
   const parents=visibleCats.filter(c=>!c.parent_id), children=visibleCats.filter(c=>c.parent_id);
   const catItems=(id:string)=>visibleItems.filter(i=>i.category_id===id); const settingsData=settings.data??{}; const [logoUrl,setLogoUrl]=useState<string|null>(null); useEffect(()=>{let a=true; const p=settingsData['logo_url']; if(!p){setLogoUrl(null);return} if(p.startsWith("http")){setLogoUrl(p);return} signedImageUrl(p).then(u=>{if(a)setLogoUrl(u)}); return()=>{a=false}},[settingsData['logo_url']]);
   useEffect(()=>{const f=()=>setTop(window.scrollY>500);window.addEventListener("scroll",f,{passive:true});return()=>window.removeEventListener("scroll",f)},[]);
-  return <main className="min-h-screen palm-fade public-menu-motion">
+  return <><main className="min-h-screen palm-fade public-menu-motion">
     <header className="border-b border-border/70 bg-background"><div className="mx-auto flex max-w-3xl items-center justify-between gap-3 px-4 py-3"><a href="/">{logoUrl?<img src={logoUrl} alt="Villa das Palmeiras" className="h-11 max-w-[190px] object-contain"/>:<span className="font-script text-3xl text-forest">Villa das Palmeiras</span>}</a><div className="flex shrink-0 rounded-full border border-gold/40 bg-cream-deep p-1 text-xs font-semibold"><button className={"rounded-full px-3 py-1 "+(lang==="pt"?"bg-forest text-cream":"text-forest")} onClick={()=>setLang("pt")}>PT</button><button className={"rounded-full px-3 py-1 "+(lang==="en"?"bg-forest text-cream":"text-forest")} onClick={()=>setLang("en")}>EN</button></div></div>
-    <div className="mx-auto max-w-3xl px-4 pb-3"><div className="flex rounded-xl border border-border bg-card px-3 py-2 shadow-sm"><Search className="mr-2 mt-0.5 h-4 w-4 text-muted-foreground"/><input aria-label={t("search")} value={search} onChange={e=>setSearch(e.target.value)} className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground" placeholder={t("search")}/>{search&&<button onClick={()=>setSearch("")}><X className="h-4 w-4"/></button>}</div></div>
+    <div className="mx-auto flex max-w-3xl items-center gap-2 px-4 pb-3"><div className="flex min-w-0 flex-1 rounded-xl border border-border bg-card px-3 py-2 shadow-sm"><Search className="mr-2 mt-0.5 h-4 w-4 shrink-0 text-muted-foreground"/><input aria-label={t("search")} value={search} onChange={e=>setSearch(e.target.value)} className="w-full min-w-0 bg-transparent text-sm outline-none placeholder:text-muted-foreground" placeholder={t("search")}/>{search&&<button onClick={()=>setSearch("")} aria-label={t("close")}><X className="h-4 w-4"/></button>}</div><Button variant="outline" className="h-10 shrink-0 border-gold/50 px-3 text-forest" onClick={()=>window.print()} disabled={!categories.data||!items.data} aria-label={t("downloadMenuAria")} title={t("downloadMenuAria")}><Download aria-hidden="true"/><span>{t("downloadMenu")}</span></Button></div>
     <DividerFlourish/></header>
     <div className="public-menu-sticky z-40 border-b border-border/70 bg-cream shadow-[0_2px_8px_rgba(27,61,11,0.08)]">
       <div className="mx-auto max-w-3xl">
@@ -35,8 +48,20 @@ function PublicMenu() {
     <OrnamentalFrame position="footer"><footer className="border-t border-gold/40 bg-forest-deep px-4 py-7 text-center text-sm text-cream/90"><div className="mx-auto max-w-3xl space-y-1"><a href="https://wa.me/258852021633" className="font-semibold text-gold-light">WhatsApp {settingsData['whatsapp']||"+258 85 202 1633"}</a><p>Instagram {settingsData['instagram']||"@grupovilladaspalmeiras"}</p><p>{settingsData['address']||"Katembe-Khaelisa, Maputo"}</p><p>{settingsData['footer_text']||t("prices")}</p></div></footer></OrnamentalFrame>
     {top&&<button onClick={()=>window.scrollTo({top:0,behavior:"smooth"})} aria-label={t("top")} title={t("top")} className="menu-press menu-fade fixed bottom-5 right-5 z-50 rounded-full bg-forest p-3 text-cream"><ArrowUp className="h-5 w-5"/></button>}
     {lightbox&&<div className="menu-lightbox fixed inset-0 z-[60] flex items-center justify-center bg-black/80 p-4" onClick={()=>setLightbox(null)}><button className="absolute right-4 top-4 p-2 text-white"><X/></button><img src={lightbox} alt="" className="menu-lightbox-img max-h-[90vh] max-w-full rounded-lg object-contain" onClick={e=>e.stopPropagation()}/></div>}
-  </main>;
+  </main><PrintMenu categories={categories.data??[]} items={items.data??[]} settings={settingsData} logoUrl={logoUrl} lang={lang}/></>;
 }
+
+function PrintMenu({categories,items,settings,logoUrl,lang}:{categories:Category[];items:Item[];settings:Settings;logoUrl:string|null;lang:Lang}){
+  const sections=[{id:"restaurante" as const,pt:"Restaurante",en:"Restaurant"},{id:"bebidas" as const,pt:"Bebidas",en:"Drinks"}];
+  const restaurantName=settings["restaurant_name"]||"Villa das Palmeiras";
+  const phone=settings["phone"]||settings["whatsapp"]||"+258 85 202 1633";
+  const whatsapp=settings["whatsapp"]||"+258 85 202 1633";
+  const instagram=settings["instagram"]||"@grupovilladaspalmeiras";
+  const address=settings["address"]||"Katembe-Khaelisa, Maputo";
+  const renderItems=(categoryId:string)=>items.filter(item=>item.category_id===categoryId).map(item=><article className="print-menu-item" key={item.id}><div className="print-menu-item-line"><span className="print-menu-item-name">{getLocalized(item.name_pt,item.name_en,lang)}</span><span className="print-menu-dots" aria-hidden="true"/><span className="print-menu-price">{formatPrice(item.price)}</span></div>{getLocalized(item.description_pt,item.description_en,lang)&&<p className="print-menu-description">{getLocalized(item.description_pt,item.description_en,lang)}</p>}{!item.is_available&&<p className="print-menu-sold-out">{lang==="pt"?"Esgotado":"Sold out"}</p>}</article>);
+  return <div className="menu-print-document" aria-hidden="true"><header className="print-menu-header">{logoUrl?<img src={logoUrl} alt="" className="print-menu-logo"/>:<p className="print-menu-script">{restaurantName}</p>}<p className="print-menu-address">{address}</p><div className="print-menu-title-rule"><span>{lang==="pt"?"Menu":"Menu"}</span></div></header>{sections.map(section=>{const parents=categories.filter(category=>category.section===section.id&&!category.parent_id);return <section className="print-menu-section" key={section.id}><h2 className="print-menu-section-title"><span>{lang==="pt"?section.pt:section.en}</span><span className="print-menu-section-translation">{lang==="pt"?section.en:section.pt}</span></h2>{parents.map(parent=>{const subs=categories.filter(category=>category.parent_id===parent.id);const secondary=lang==="pt"?parent.name_en:parent.name_pt;return <div className="print-menu-category" key={parent.id}><h3 className="print-menu-category-title"><span>{getLocalized(parent.name_pt,parent.name_en,lang)}</span>{secondary&&secondary.trim()!==getLocalized(parent.name_pt,parent.name_en,lang)&&<span className="print-menu-category-translation">{secondary}</span>}</h3>{renderItems(parent.id)}{subs.map(sub=>{const subSecondary=lang==="pt"?sub.name_en:sub.name_pt;return <div className="print-menu-subcategory" key={sub.id}><h4 className="print-menu-subcategory-title"><span>{getLocalized(sub.name_pt,sub.name_en,lang)}</span>{subSecondary&&subSecondary.trim()!==getLocalized(sub.name_pt,sub.name_en,lang)&&<span className="print-menu-category-translation">{subSecondary}</span>}</h4>{renderItems(sub.id)}</div>})}</div>})}</section>})}<footer className="print-menu-footer"><p>{phone} · WhatsApp {whatsapp}</p><p>Instagram {instagram}</p><p>{address}</p><p>{settings["footer_text"]|| (lang==="pt"?"Preços em Meticais (MT)":"Prices in Meticais (MT)")}</p></footer></div>;
+}
+
 function ItemList({items,lang,onImage}:{items:any[];lang:"pt"|"en";onImage:(url:string)=>void}){return <div>{items.map(i=><MenuItem key={i.id} item={i} lang={lang} onImage={onImage}/>)}</div>}
 function MenuItem({item,lang,onImage}:{item:any;lang:"pt"|"en";onImage:(url:string)=>void}){const[url,setUrl]=useState<string|null>(item.image_url?.startsWith("http")?item.image_url:null);useEffect(()=>{let a=true;if(item.image_url&&!item.image_url.startsWith("http"))signedImageUrl(item.image_url).then(u=>{if(a)setUrl(u)});return()=>{a=false}},[item.image_url]);return <article className={`menu-press flex gap-3 border-b border-border/60 py-3 last:border-0 ${!item.is_available?"opacity-50":""}`}><button className="shrink-0 touch-manipulation" disabled={!url} onClick={()=>url&&onImage(url)}><div className="h-16 w-16 overflow-hidden rounded-md bg-muted">{url?<img src={url} loading="lazy" alt="" className="h-full w-full object-cover"/>:null}</div></button><div className="min-w-0 flex-1"><h3 className="font-semibold leading-snug">{getLocalized(item.name_pt,item.name_en,lang)}</h3>{getLocalized(item.description_pt,item.description_en,lang)&&<p className="mt-1 text-xs leading-relaxed text-muted-foreground">{getLocalized(item.description_pt,item.description_en,lang)}</p>}{!item.is_available&&<span className="mt-1 inline-block rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">{lang==="pt"?"Esgotado":"Sold out"}</span>}<div className="mt-1 font-semibold leading-tight text-forest">{formatPrice(item.price)}</div></div></article>}
 function MenuSkeleton(){return <div className="space-y-6 animate-pulse">{[1,2,3].map(x=><div key={x}><div className="h-12 rounded-sm bg-muted"/><div className="mt-3 space-y-3">{[1,2,3].map(y=><div key={y} className="h-8 rounded bg-muted"/>)}</div></div>)}</div>}

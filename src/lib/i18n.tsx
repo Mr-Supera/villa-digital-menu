@@ -14,6 +14,8 @@ const dict = {
     menu: "Menu",
     loading: "A carregar...",
     close: "Fechar",
+    downloadMenu: "Baixar PDF",
+    downloadMenuAria: "Baixar o menu completo em PDF",
   },
   en: {
     restaurant: "Meals",
@@ -26,6 +28,8 @@ const dict = {
     menu: "Menu",
     loading: "Loading...",
     close: "Close",
+    downloadMenu: "Download PDF",
+    downloadMenuAria: "Download the complete menu as a PDF",
   },
 } as const;
 
